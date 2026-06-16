@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMD Service - Administration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+        }
+
+        /* Admin Header */
+        .admin-header {
+            background: linear-gradient(135deg, #2C5F2D 0%, #1A3B1A 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .admin-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #F7B32B;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Tabs */
+        .tabs {
+            background: white;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tab-btn {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: #F7B32B;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #F7B32B 0%, #FF8C00 100%);
+        }
+
+        .tab-btn:hover {
+            color: #F7B32B;
+        }
+
+        /* Content */
+        .content {
+            padding: 30px 0;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Orders Table */
+        .orders-table {
+            background: white;
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #F7B32B 0%, #FF8C00 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #FFE5B4;
+            color: #FF8C00;
+        }
+
+        .status-processing {
+            background: #B4D4FF;
+            color: #0066CC;
+        }
+
+        .status-shipped {
+            background: #B4FFB4;
+            color: #2C5F2D;
+        }
+
+        .status-delivered {
+            background: #90EE90;
+            color: #006400;
+        }
+
+        .status-cancelled {
+            background: #FFB4B4;
+            color: #DC143C;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-view {
+            background: #F7B32B;
+            color: white;
+        }
+
+        .btn-update {
+            background: #2C5F2D;
+            color: white;
+        }
+
+        .btn-print {
+            background: #17a2b8;
+            color: white;
+        }
+
+        /* Products Management */
+        .products-grid-admin {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card-admin {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .add-product-form {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #F7B32B;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #2C5F2D 0%, #1A3B1A 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            max-width: 500px;
+            border-radius: 20px;
+            animation: slideUp 0.3s;
+        }
+
+        /* Notification SMS */
+        .sms-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 2000;
+            animation: slideInRight 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .sms-error {
+            background: #dc3545;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .tab-buttons {
+                flex-direction: column;
+            }
+            
+            th, td {
+                padding: 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="container">
+            <div class="admin-header-content">
+                <div class="logo">
+                    SMD <span>Service</span> - Admin
+                </div>
+                <div class="stats" id="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalOrders">0</div>
+                        <div class="stat-label">Commandes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingOrders">0</div>
+                        <div class="stat-label">En attente</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalRevenue">0</div>
+                        <div class="stat-label">Revenus (FCFA)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab('orders')">📦 Commandes</button>
+            <button class="tab-btn" onclick="switchTab('products')">🛍️ Produits</button>
+            <button class="tab-btn" onclick="switchTab('customers')">👥 Clients</button>
+            <button class="tab-btn" onclick="switchTab('analytics')">📊 Statistiques</button>
+            <button class="tab-btn" onclick="switchTab('smsLogs')">📱 SMS Logs</button>
+        </div>
+    </div>
+
+    <div class="container content">
+        <!-- Orders Tab -->
+        <div id="ordersTab" class="tab-content active">
+            <div class="orders-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N° Commande</th>
+                            <th>Date</th>
+                            <th>Client</th>
+                            <th>Téléphone</th>
+                            <th>Total</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="productsTab" class="tab-content">
+            <div class="add-product-form">
+                <h3 style="color: #2C5F2D; margin-bottom: 20px;">➕ Ajouter un produit</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nom du produit</label>
+                        <input type="text" id="prodName" placeholder="Ex: Smartphone">
+                    </div>
+                    <div class="form-group">
+                        <label>Prix (FCFA)</label>
+                        <input type="number" id="prodPrice" placeholder="Ex: 150000">
+                    </div>
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <select id="prodCategory">
+                            <option value="electronics">Électronique</option>
+                            <option value="fashion">Mode</option>
+                            <option value="home">Maison</option>
+                            <option value="sports">Sports</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-submit" onclick="addProduct()">Ajouter le produit</button>
+            </div>
+            <div class="products-grid-admin" id="adminProductsList"></div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div id="customersTab" class="tab-content">
+            <div class="orders-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Téléphone</th>
+                            <th>Email</th>
+                            <th>Commandes</th>
+                            <th>Total dépensé</th>
+                            <th>Dernière commande</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analyticsTab" class="tab-content">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div style="background: linear-gradient(135deg, #F7B32B 0%, #FF8C00 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 36px; font-weight: bold;" id="analyticsTotalOrders">0</div>
+                    <div>Total Commandes</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #2C5F2D 0%, #1A3B1A 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 36px; font-weight: bold;" id="analyticsTotalRevenue">0</div>
+                    <div>Chiffre d'affaires (FCFA)</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 36px; font-weight: bold;" id="analyticsAvgOrder">0</div>
+                    <div>Panier moyen (FCFA)</div>
+                </div>
+            </div>
+            <div class="orders-table">
+                <h3 style="padding: 20px; color: #2C5F2D;">📈 Évolution des commandes</h3>
+                <div style="padding: 20px;" id="chartPlaceholder">
+                    <canvas id="ordersChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMS Logs Tab -->
+        <div id="smsLogsTab" class="tab-content">
+            <div class="orders-table">
+                <h3 style="padding: 20px; color: #2C5F2D;">📱 Historique des SMS envoyés</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>N° Commande</th>
+                            <th>Destinataire</th>
+                            <th>Message</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="smsLogsList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <span style="float: right; font-size: 28px; cursor: pointer;" onclick="closeOrderModal()">&times;</span>
+            <h3 style="color: #2C5F2D;">📄 Détails de la commande</h3>
+            <div id="orderDetails"></div>
+            <button class="btn-submit" onclick="printReceipt()" style="margin-top: 20px;">🖨️ Imprimer le reçu</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let orders = [];
+        let products = [];
+        let smsLogs = [];
+        let currentOrderDetails = null;
+
+        // Load data
+        function loadData() {
+            orders = JSON.parse(localStorage.getItem('smd_orders') || '[]');
+            products = JSON.parse(localStorage.getItem('smd_products') || '[]');
+            smsLogs = JSON.parse(localStorage.getItem('smd_sms_logs') || '[]');
+            
+            if(products.length === 0) {
+                // Initialize with default products
+                products = [
+                    { id: 1, name: "Smartphone Xiaomi Note 11", price: 150000, category: "electronics" },
+                    { id: 2, name: "Casque Bluetooth Sony", price: 45000, category: "electronics" },
+                    { id: 3, name: "T-shirt Premium", price: 8000, category: "fashion" },
+                    { id: 4, name: "Jean Slim Fit", price: 25000, category: "fashion" },
+                    { id: 5, name: "Lampe de Bureau LED", price: 12000, category: "home" },
+                    { id: 6, name: "Set de Casserole Inox", price: 35000, category: "home" },
+                    { id: 7, name: "Ballon de Football", price: 15000, category: "sports" },
+                    { id: 8, name: "Tapis de Yoga", price: 18000, category: "sports" }
+                ];
+                localStorage.setItem('smd_products', JSON.stringify(products));
+            }
+            
+            updateStats();
+            displayOrders();
+            displayProducts();
+            displayCustomers();
+            updateAnalytics();
+            displaySMSLogs();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = orders.length;
+            const pending = orders.filter(o => o.status === 'pending').length;
+            const revenue = orders.reduce((sum, o) => sum + o.total, 0);
+            
+            document.getElementById('totalOrders').textContent = total;
+            document.getElementById('pendingOrders').textContent = pending;
+            document.getElementById('totalRevenue').textContent = revenue.toLocaleString();
+        }
+
+        // Fonction d'envoi de SMS
+        async function sendDeliverySMS(phoneNumber, orderId, customerName) {
+            // Nettoyer le numéro de téléphone
+            let cleanPhone = phoneNumber.toString().replace(/\s/g, '');
+            if (!cleanPhone.startsWith('+')) {
+                cleanPhone = '+' + cleanPhone;
+            }
+            
+            const message = `Votre Colis est arrivée à destination par SMD Service. Merci pour votre soutien`;
+            
+            // API de SMS (simulation avec log)
+            console.log(`Envoi SMS à ${cleanPhone}: ${message}`);
+            
+            // Simulation d'envoi de SMS (à remplacer par une vraie API comme Twilio, Africa's Talking, etc.)
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Enregistrer dans les logs
+                    const smsLog = {
+                        id: 'SMS' + Date.now(),
+                        date: new Date().toLocaleString('fr-FR'),
+                        orderId: orderId,
+                        phone: phoneNumber,
+                        customerName: customerName,
+                        message: message,
+                        status: 'Envoyé avec succès'
+                    };
+                    
+                    smsLogs.unshift(smsLog);
+                    localStorage.setItem('smd_sms_logs', JSON.stringify(smsLogs));
+                    
+                    // Afficher une notification
+                    showSMSNotification(`✅ SMS envoyé à ${phoneNumber}`, 'success');
+                    resolve(true);
+                }, 1000);
+            });
+        }
+
+        // Afficher notification SMS
+        function showSMSNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `sms-notification ${type === 'error' ? 'sms-error' : ''}`;
+            notification.innerHTML = `
+                <strong>📱 ${type === 'success' ? 'SMS Envoyé' : 'Erreur SMS'}</strong><br>
+                ${message}
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Update order status with SMS notification
+        async function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if(order) {
+                const oldStatus = order.status;
+                order.status = newStatus;
+                localStorage.setItem('smd_orders', JSON.stringify(orders));
+                
+                // Si la commande est marquée comme livrée, envoyer un SMS
+                if (newStatus === 'delivered' && oldStatus !== 'delivered') {
+                    // Afficher un message de confirmation
+                    const confirmSMS = confirm(`La commande ${orderId} est marquée comme livrée.\n\nVoulez-vous envoyer un SMS de confirmation à ${order.customer.phone} ?`);
+                    
+                    if (confirmSMS) {
+                        // Afficher un indicateur de chargement
+                        showSMSNotification(`📤 Envoi du SMS à ${order.customer.phone}...`, 'success');
+                        
+                        // Envoyer le SMS
+                        await sendDeliverySMS(order.customer.phone, orderId, order.customer.name);
+                        
+                        // Ajouter une note dans l'historique de la commande
+                        if (!order.smsHistory) order.smsHistory = [];
+                        order.smsHistory.push({
+                            date: new Date().toLocaleString('fr-FR'),
+                            message: `SMS de livraison envoyé à ${order.customer.phone}`
+                        });
+                        localStorage.setItem('smd_orders', JSON.stringify(orders));
+                    }
+                }
+                
+                loadData();
+                showNotification(`Statut de la commande ${orderId} mis à jour`, 'success');
+            }
+        }
+
+        // Display orders
+        function displayOrders() {
+            const tbody = document.getElementById('ordersList');
+            
+            if(orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">📭 Aucune commande pour le moment</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td><strong>${order.id}</strong></td>
+                    <td>${order.date}</td>
+                    <td>${order.customer.name}</td>
+                    <td>${order.customer.phone}</td>
+                    <td>${order.total.toLocaleString()} FCFA</td>
+                    <td>
+                        <span class="status-badge status-${order.status}">
+                            ${getStatusText(order.status)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn btn-view" onclick="viewOrder('${order.id}')">👁️ Voir</button>
+                        <button class="action-btn btn-print" onclick="printOrderReceipt('${order.id}')">🖨️ Reçu</button>
+                        <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding: 5px; border-radius: 5px;">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>En attente</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>En traitement</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Expédiée</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>✅ Livrée</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Annulée</option>
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Get status text in French
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'En attente',
+                'processing': 'En traitement',
+                'shipped': 'Expédiée',
+                'delivered': '✅ Livrée',
+                'cancelled': 'Annulée'
+            };
+            return statusMap[status] || status;
+        }
+
+        // View order details
+        function viewOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if(order) {
+                currentOrderDetails = order;
+                const details = `
+                    <div style="margin-top: 20px;">
+                        <p><strong>N° commande:</strong> ${order.id}</p>
+                        <p><strong>Date:</strong> ${order.date}</p>
+                        <p><strong>Client:</strong> ${order.customer.name}</p>
+                        <p><strong>Téléphone:</strong> ${order.customer.phone}</p>
+                        <p><strong>Email:</strong> ${order.customer.email || 'Non renseigné'}</p>
+                        <p><strong>Adresse:</strong> ${order.customer.address}</p>
+                        <p><strong>Livraison:</strong> ${order.deliveryMethod}</p>
+                        <p><strong>Paiement:</strong> ${order.paymentMethod}</p>
+                        <hr style="margin: 15px 0;">
+                        <h4>🛍️ Articles commandés:</h4>
+                        ${order.items.map(item => `
+                            <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                                ${item.name} - ${item.quantity} x ${item.price.toLocaleString()} FCFA
+                            </div>
+                        `).join('')}
+                        <hr style="margin: 15px 0;">
+                        <p><strong>Sous-total:</strong> ${order.subtotal.toLocaleString()} FCFA</p>
+                        <p><strong>Livraison:</strong> ${order.deliveryCost.toLocaleString()} FCFA</p>
+                        <p style="font-size: 20px; font-weight: bold; color: #2C5F2D;"><strong>Total:</strong> ${order.total.toLocaleString()} FCFA</p>
+                        <p><strong>Statut:</strong> <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></p>
+                        ${order.smsHistory && order.smsHistory.length > 0 ? `
+                            <hr style="margin: 15px 0;">
+                            <h4>📱 Historique des notifications SMS:</h4>
+                            ${order.smsHistory.map(sms => `
+                                <div style="margin: 5px 0; padding: 5px; background: #e8f5e9; border-radius: 5px; font-size: 12px;">
+                                    📅 ${sms.date}: ${sms.message}
+                                </div>
+                            `).join('')}
+                        ` : ''}
+                    </div>
+                `;
+                document.getElementById('orderDetails').innerHTML = details;
+                document.getElementById('orderModal').style.display = 'block';
+            }
+        }
+
+        // Print order receipt
+        function printOrderReceipt(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if(order) {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Reçu Commande ${order.id}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 40px; }
+                            .header { text-align: center; margin-bottom: 30px; }
+                            .logo { color: #F7B32B; font-size: 24px; font-weight: bold; }
+                            .order-info { margin-bottom: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                            th { background: #F7B32B; color: white; }
+                            .total { font-size: 20px; font-weight: bold; text-align: right; margin-top: 20px; }
+                            .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <div class="logo">SMD Service</div>
+                            <p>Votre partenaire de confiance</p>
+                        </div>
+                        <div class="order-info">
+                            <p><strong>N° Commande:</strong> ${order.id}</p>
+                            <p><strong>Date:</strong> ${order.date}</p>
+                            <p><strong>Client:</strong> ${order.customer.name}</p>
+                            <p><strong>Téléphone:</strong> ${order.customer.phone}</p>
+                            <p><strong>Adresse:</strong> ${order.customer.address}</p>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Quantité</th>
+                                    <th>Prix unitaire</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${order.items.map(item => `
+                                    <tr>
+                                        <td>${item.name}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${item.price.toLocaleString()} FCFA</td>
+                                        <td>${(item.price * item.quantity).toLocaleString()} FCFA</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div class="total">
+                            <p>Sous-total: ${order.subtotal.toLocaleString()} FCFA</p>
+                            <p>Livraison: ${order.deliveryCost.toLocaleString()} FCFA</p>
+                            <p>Total: ${order.total.toLocaleString()} FCFA</p>
+                        </div>
+                        <div class="footer">
+                            <p>Merci de votre confiance !</p>
+                            <p>SMD Service - Livraison à domicile</p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            }
+        }
+
+        // Print receipt from modal
+        function printReceipt() {
+            if(currentOrderDetails) {
+                printOrderReceipt(currentOrderDetails.id);
+            }
+        }
+
+        // Close order modal
+        function closeOrderModal() {
+            document.getElementById('orderModal').style.display = 'none';
+            currentOrderDetails = null;
+        }
+
+        // Display products in admin
+        function displayProducts() {
+            const container = document.getElementById('adminProductsList');
+            container.innerHTML = products.map(product => `
+                <div class="product-card-admin">
+                    <h4>${product.name}</h4>
+                    <p style="color: #F7B32B; font-size: 20px; font-weight: bold;">${product.price.toLocaleString()} FCFA</p>
+                    <p>Catégorie: ${product.category}</p>
+                    <button class="action-btn btn-view" onclick="deleteProduct(${product.id})" style="background: #DC143C;">Supprimer</button>
+                </div>
+            `).join('');
+        }
+
+        // Add product
+        function addProduct() {
+            const name = document.getElementById('prodName').value;
+            const price = parseInt(document.getElementById('prodPrice').value);
+            const category = document.getElementById('prodCategory').value;
+            
+            if(!name || !price) {
+                showNotification("Veuillez remplir tous les champs !", "error");
+                return;
+            }
+            
+            const newId = Math.max(...products.map(p => p.id), 0) + 1;
+            products.push({ id: newId, name, price, category });
+            localStorage.setItem('smd_products', JSON.stringify(products));
+            
+            // Clear form
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodPrice').value = '';
+            
+            displayProducts();
+            showNotification("Produit ajouté avec succès !");
+        }
+
+        // Delete product
+        function deleteProduct(productId) {
+            if(confirm("Supprimer ce produit ?")) {
+                products = products.filter(p => p.id !== productId);
+                localStorage.setItem('smd_products', JSON.stringify(products));
+                displayProducts();
+                showNotification("Produit supprimé");
+            }
+        }
+
+        // Display customers
+        function displayCustomers() {
+            const customerMap = new Map();
+            
+            orders.forEach(order => {
+                const phone = order.customer.phone;
+                if(!customerMap.has(phone)) {
+                    customerMap.set(phone, {
+                        name: order.customer.name,
+                        phone: order.customer.phone,
+                        email: order.customer.email,
+                        orders: 0,
+                        total: 0,
+                        lastOrder: order.date
+                    });
+                }
+                const customer = customerMap.get(phone);
+                customer.orders++;
+                customer.total += order.total;
+                if(new Date(order.date) > new Date(customer.lastOrder)) {
+                    customer.lastOrder = order.date;
+                }
+            });
+            
+            const customers = Array.from(customerMap.values());
+            const tbody = document.getElementById('customersList');
+            
+            if(customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">👥 Aucun client pour le moment</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = customers.map(customer => `
+                <tr>
+                    <td>${customer.name}</td>
+                    <td>${customer.phone}</td>
+                    <td>${customer.email || '-'}</td>
+                    <td>${customer.orders}</td>
+                    <td>${customer.total.toLocaleString()} FCFA</td>
+                    <td>${customer.lastOrder}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Display SMS logs
+        function displaySMSLogs() {
+            const tbody = document.getElementById('smsLogsList');
+            
+            if(smsLogs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;">📱 Aucun SMS envoyé pour le moment</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = smsLogs.map(log => `
+                <tr>
+                    <td>${log.date}</td>
+                    <td>${log.orderId}</td>
+                    <td>${log.customerName} (${log.phone})</td>
+                    <td style="max-width: 300px;">${log.message}</td>
+                    <td><span style="color: green;">✅ ${log.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Update analytics
+        function updateAnalytics() {
+            const totalOrders = orders.length;
+            const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+            const avgOrder = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+            
+            document.getElementById('analyticsTotalOrders').textContent = totalOrders;
+            document.getElementById('analyticsTotalRevenue').textContent = totalRevenue.toLocaleString();
+            document.getElementById('analyticsAvgOrder').textContent = Math.round(avgOrder).toLocaleString();
+            
+            // Create chart
+            const ctx = document.getElementById('ordersChart')?.getContext('2d');
+            if(ctx && orders.length > 0) {
+                const ordersByDay = {};
+                orders.forEach(order => {
+                    const date = order.date.split(' ')[0];
+                    ordersByDay[date] = (ordersByDay[date] || 0) + 1;
+                });
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(ordersByDay),
+                        datasets: [{
+                            label: 'Commandes par jour',
+                            data: Object.values(ordersByDay),
+                            borderColor: '#F7B32B',
+                            backgroundColor: 'rgba(247, 179, 43, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Show notification
+        function showNotification(message, type = "success") {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.background = type === "error" ? "#DC143C" : "#2C5F2D";
+            notification.style.color = 'white';
+            notification.style.padding = '15px 25px';
+            notification.style.borderRadius = '10px';
+            notification.style.zIndex = '1001';
+            notification.style.animation = 'slideIn 0.3s';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initialize
+        loadData();
+        
+        // Auto-refresh every 10 seconds
+        setInterval(loadData, 10000);
+    </script>
+</body>
+</html>
+
+<!--Configuration requise :
+Créez un compte sur Africa's Talking
+
+Obtenez votre API Key dans le dashboard
+
+Pour le test, utilisez le mode "sandbox" avec le username "sandbox"
+
+Pour la production, passez en mode "live" avec votre vrai username
+
+Format des numéros -->
